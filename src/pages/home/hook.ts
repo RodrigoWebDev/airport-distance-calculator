@@ -117,7 +117,6 @@ const useHome = () => {
           setDirectionsResponse(response)
           setMapError(null)
         }else{
-          console.log("status", response.status)
           setDirectionsResponse(null)
           setMapError(response.status)
         }
