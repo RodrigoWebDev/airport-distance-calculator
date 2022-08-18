@@ -1,7 +1,20 @@
 /* schiphol */
 import React, { useState, useEffect, SetStateAction, Dispatch } from "react"
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+import CountUp from 'react-countup';
+
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+  },
+});
 
 interface Location {
   lat: number
@@ -19,11 +32,12 @@ interface AirportListInterface {
 }
 
 const Index = () => {
+  const isDesktop = useMediaQuery('(min-width:663px)');
   const [airportListOne, setAirportListOne] = useState<AirportListInterface[] | []>([])
   const [airportListTwo, setAirportListTwo] = useState<AirportListInterface[] | []>([])
   const [airportOneInfo, setAirportOneInfo] = useState<AirportListInterface | null>(null)
   const [airportTwoInfo, setAirportTwoInfo] = useState<AirportListInterface | null>(null)
-  const [distanceInKm, setDistanceInKm] = useState<string | null>(null)
+  const [distanceInNmi, setDistanceInNmi] = useState<number | null>(null)
   const hasTerm = (term: string) => {
     return term && term.length >= 3
   }
@@ -55,10 +69,6 @@ const Index = () => {
     getAirport(term, setAirportListTwo)
   }
 
-  const onSubmit = (e) => {
-    e.preventDefault()
-  }
-
   const deg2rad = (deg: number) => {
     return deg * (Math.PI/180)
   }
@@ -75,7 +85,7 @@ const Index = () => {
         ; 
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
       const d = R * c;
-      return d.toFixed(2);
+      return d;
     }
 
     return null
@@ -87,44 +97,87 @@ const Index = () => {
       const lon1 = airportOneInfo?.location.lon
       const lat2 = airportTwoInfo?.location.lat
       const lon2 = airportTwoInfo?.location.lon
-      const distance = getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2)
+      const nmi = 0.539956803
+      const distanceInKm = getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2)
+      const distanceInNmi = distanceInKm && (distanceInKm * nmi)
 
-      setDistanceInKm(distance)
+      console.log("distanceInKm", distanceInKm?.toFixed(2))
+      console.log("distanceInNmi", distanceInNmi?.toFixed(2))
+      console.log({ distanceInNmi })
+
+      setDistanceInNmi(distanceInNmi)
     }
   }, [airportOneInfo, airportTwoInfo])
 
+  const mainTitleVariant = () => isDesktop ? 'h1' : 'h2'
+
   return (
-    <>
-      <h1>Airport distance calculator</h1>
+    <ThemeProvider theme={darkTheme}>
+      <Container maxWidth="md">
+        <Typography 
+          variant={mainTitleVariant()} 
+          component="h1"
+          gutterBottom
+          align="center"
+          color="white"
+        >
+            Airport distance calculator
+        </Typography>
+        <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            flexWrap: 'wrap'
+        }}>
+          <Box sx={{ 
+            marginRight: isDesktop ? '16px' : '0',
+            marginBottom: isDesktop ? '0': '16px'
+          }}>
+            <Autocomplete
+              disablePortal
+              id="combo-box-demo"
+              options={airportListOne}
+              sx={{ width: 300 }}
+              getOptionLabel={option => option.name}
+              onInputChange={(e, term) => getAirportOne(term)}
+              onChange={(e, newValue) => {
+                setAirportOneInfo(newValue)
+              }}
+              renderInput={params => <TextField {...params} label="Select the first airport" />}
+          />
+          </Box>
 
-      <Autocomplete
-        disablePortal
-        id="combo-box-demo"
-        options={airportListOne}
-        sx={{ width: 300 }}
-        getOptionLabel={option => option.name}
-        onInputChange={(e, term) => getAirportOne(term)}
-        onChange={(event: any, newValue: string | null) => {
-          setAirportOneInfo(newValue)
-        }}
-        renderInput={params => <TextField {...params} label="Select the first airport" />}
-      />
+          <Autocomplete
+            disablePortal
+            id="combo-box-demo"
+            options={airportListTwo}
+            sx={{ width: 300 }}
+            getOptionLabel={option => option.name}
+            onInputChange={(e, term) => getAirportTwo(term)}
+            onChange={(e, newValue) => {
+              setAirportTwoInfo(newValue)
+            }}
+            renderInput={params => <TextField {...params} label="Select the second airport" />}
+          />
+        </Box>
 
-      <Autocomplete
-        disablePortal
-        id="combo-box-demo"
-        options={airportListTwo}
-        sx={{ width: 300 }}
-        getOptionLabel={option => option.name}
-        onInputChange={(e, term) => getAirportTwo(term)}
-        onChange={(event: any, newValue: string | null) => {
-          setAirportTwoInfo(newValue)
-        }}
-        renderInput={params => <TextField {...params} label="Select the second airport" />}
-      />
-
-      <h1>{distanceInKm} KM</h1>
-    </>
+        {(airportOneInfo && airportTwoInfo) && 
+          <Box sx={{ marginTop: '16px'}}>
+            <Typography 
+              variant="h2" 
+              gutterBottom
+              align="center"
+              color="white"
+            >
+              <CountUp 
+                end={distanceInNmi || 0} 
+                decimals={2} 
+                decimal="," 
+              /> NMI
+            </Typography>
+          </Box>
+        }
+      </Container>
+    </ThemeProvider>
   )
 }
 

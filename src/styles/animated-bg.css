@@ -1,0 +1,23 @@
+.animated-bg {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: 300% 300%;
+  background-image: linear-gradient(
+    -45deg, 
+    #2E0249 0%, 
+    #570A57 25%, 
+    #A91079 51%, 
+    #F806CC 100%
+  );  
+  animation: AnimateBG 20s ease infinite;
+  margin: 0;
+}
+
+@keyframes AnimateBG { 
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
