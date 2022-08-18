@@ -1,24 +1,24 @@
 //Libs
-import React from "react"
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import CountUp from 'react-countup';
-import { GoogleMap, Polyline, Marker } from '@react-google-maps/api';
+import React from 'react'
+import { ThemeProvider, createTheme } from '@mui/material/styles'
+import CountUp from 'react-countup'
+import { GoogleMap, Polyline, Marker } from '@react-google-maps/api'
 
 //Components
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
-import Container from '@mui/material/Container';
-import Button from '@mui/material/Button';
-import CustomAutoComplete from "../../components/CustomAutoComplete";
+import Typography from '@mui/material/Typography'
+import Box from '@mui/material/Box'
+import Container from '@mui/material/Container'
+import Button from '@mui/material/Button'
+import CustomAutoComplete from '../../components/CustomAutoComplete'
 
 //Hooks
-import useHome from "./hook";
+import useHome from './hook'
 
 const darkTheme = createTheme({
   palette: {
     mode: 'dark',
   },
-});
+})
 
 const Home = () => {
   const {
@@ -49,13 +49,13 @@ const Home = () => {
 
   return (
     <ThemeProvider theme={darkTheme}>
-      <Container maxWidth="md">
+      <Container maxWidth='md'>
         <Typography 
           variant={mainTitleVariant()} 
-          component="h1"
+          component='h1'
           gutterBottom
-          align="center"
-          color="white"
+          align='center'
+          color='white'
         >
           Airport distance calculator
         </Typography>
@@ -78,7 +78,7 @@ const Home = () => {
               onChange={(e, newValue) => {
                 setAirportOneInfo(newValue)
               }}
-              label="Select the first airport"
+              label='Select the first airport'
             />
           </Box>
 
@@ -91,7 +91,7 @@ const Home = () => {
             onChange={(e, newValue) => {
               setAirportTwoInfo(newValue)
             }}
-            label="Select the second airport"
+            label='Select the second airport'
           />
         </Box>
 
@@ -104,15 +104,15 @@ const Home = () => {
                 flexDirection: 'column'
             }}>
               <Typography 
-                variant="h2" 
+                variant='h2' 
                 gutterBottom
-                align="center"
-                color="white"
+                align='center'
+                color='white'
               >
                 <CountUp 
                   end={distanceInNmi || 0} 
                   decimals={2} 
-                  decimal="." 
+                  decimal='.' 
                 /> NMI
               </Typography>
             </Box>
@@ -123,7 +123,7 @@ const Home = () => {
               marginBottom: '16px'
             }}>
               <Button 
-                variant="contained"
+                variant='contained'
                 onClick={() => {
                   setShowMapRoute((state) => !state)
                   setMapZoom(5)
@@ -135,7 +135,7 @@ const Home = () => {
             
             <Box
               sx={{
-                display: (isLoaded && showMapRoute) ? "block" : "none"
+                display: (isLoaded && showMapRoute) ? 'block' : 'none'
               }}
             >
               <GoogleMap

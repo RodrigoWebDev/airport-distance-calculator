@@ -1,7 +1,7 @@
-import { useState, useEffect, SetStateAction, Dispatch, useCallback } from "react"
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { useJsApiLoader } from '@react-google-maps/api';
-import { AirportListInterface, Location } from "../../interfaces"
+import { useState, useEffect, SetStateAction, Dispatch, useCallback } from 'react'
+import useMediaQuery from '@mui/material/useMediaQuery'
+import { useJsApiLoader } from '@react-google-maps/api'
+import { AirportListInterface, Location } from '../../interfaces'
 
 const polyLineOptions = {
   strokeColor: '#FF0000',
@@ -15,10 +15,10 @@ const polyLineOptions = {
   visible: true,
   radius: 30000,
   zIndex: 1
-};
+}
 
 const useHome = () => {
-  const isDesktop = useMediaQuery('(min-width:663px)');
+  const isDesktop = useMediaQuery('(min-width:663px)')
   const [airportListOne, setAirportListOne] = useState<AirportListInterface[] | []>([])
   const [airportListTwo, setAirportListTwo] = useState<AirportListInterface[] | []>([])
   const [airportOneInfo, setAirportOneInfo] = useState<AirportListInterface | null>(null)
@@ -30,7 +30,7 @@ const useHome = () => {
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: "AIzaSyAroVYQsjCocZryzS13ra5yndO77lAABh0"
+    googleMapsApiKey: 'AIzaSyAroVYQsjCocZryzS13ra5yndO77lAABh0'
   })
 
   const mainTitleVariant = () => isDesktop ? 'h1' : 'h3'
@@ -59,14 +59,14 @@ const useHome = () => {
           'X-RapidAPI-Key': '4a2e9916cbmsh577871ff8d632d4p19c36djsnacd6559fda31',
           'X-RapidAPI-Host': 'aerodatabox.p.rapidapi.com'
         }
-      };
+      }
       
       fetch(`https://aerodatabox.p.rapidapi.com/airports/search/term?q=${term}&limit=10`, options)
         .then(response => response.json())
         .then(({items}) => {
           setAirport(items)
         })
-        .catch(err => console.error({err}));
+        .catch(err => console.error({err}))
     }
   }
 
@@ -84,17 +84,17 @@ const useHome = () => {
 
   const getDistanceFromLatLonInKm = (lat1?: number, lon1?: number, lat2?: number, lon2?: number) => {
     if(lat1 && lon1 && lat2 && lon2){
-      const R = 6371;
-      const dLat = deg2rad(lat2-lat1);
-      const dLon = deg2rad(lon2-lon1); 
+      const R = 6371
+      const dLat = deg2rad(lat2-lat1)
+      const dLon = deg2rad(lon2-lon1) 
       const a = 
         Math.sin(dLat/2) * Math.sin(dLat/2) +
         Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
         Math.sin(dLon/2) * Math.sin(dLon/2)
-      ; 
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-      const d = R * c;
-      return d;
+       
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) 
+      const d = R * c
+      return d
     }
 
     return null
@@ -115,8 +115,8 @@ const useHome = () => {
   }
 
   const onLoadMap = useCallback(function callback(map) {
-    const bounds = new window.google.maps.LatLngBounds(mapOptions.center);
-    map.fitBounds(bounds);
+    const bounds = new window.google.maps.LatLngBounds(mapOptions.center)
+    map.fitBounds(bounds)
     setMap(map)
   }, [])
 
@@ -144,7 +144,7 @@ const useHome = () => {
   const polyLinePath = [
     airPortOnePosition(),
     airPortTwoPosition()
-  ];
+  ]
 
   useEffect(() => {
     updateNmiDistanceInfo()
