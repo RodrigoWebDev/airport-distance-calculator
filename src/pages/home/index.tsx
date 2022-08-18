@@ -1,14 +1,14 @@
 //Libs
-import React from "react"
+import React, { useState } from "react"
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CountUp from 'react-countup';
+import { GoogleMap, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
 
 //Components
-import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
+import Button from '@mui/material/Button';
 import CustomAutoComplete from "../../components/CustomAutoComplete";
 
 //Hooks
@@ -32,7 +32,16 @@ const Home = () => {
     setAirportTwoInfo,
     airportOneInfo,
     airportTwoInfo,
-    distanceInNmi
+    distanceInNmi,
+    mapOptions,
+    onLoad, 
+    onUnmount,
+    isLoaded,
+    getAirportPositionInMap,
+    showMapRoute, 
+    setShowMapRoute,
+    directionsCallback,
+    directionsResponse
   } = useHome()
 
   return (
@@ -45,12 +54,13 @@ const Home = () => {
           align="center"
           color="white"
         >
-            Airport distance calculator
+          Airport distance calculator
         </Typography>
+        
         <Box sx={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
-            flexWrap: 'wrap'
+          display: 'flex', 
+          justifyContent: 'center', 
+          flexWrap: 'wrap'
         }}>
           <Box sx={{ 
             marginRight: isDesktop ? '16px' : '0',
@@ -77,20 +87,70 @@ const Home = () => {
         </Box>
 
         {(airportOneInfo && airportTwoInfo) && 
-          <Box sx={{ marginTop: '16px'}}>
-            <Typography 
-              variant="h2" 
-              gutterBottom
-              align="center"
-              color="white"
-            >
-              <CountUp 
-                end={distanceInNmi || 0} 
-                decimals={2} 
-                decimal="." 
-              /> NMI
-            </Typography>
-          </Box>
+          <>
+            <Box sx={{ 
+                margin: '16px 0', 
+                display: 'flex', 
+                alignItems: 'center', 
+                flexDirection: 'column'
+            }}>
+              <Typography 
+                variant="h2" 
+                gutterBottom
+                align="center"
+                color="white"
+              >
+                <CountUp 
+                  end={distanceInNmi || 0} 
+                  decimals={2} 
+                  decimal="." 
+                /> NMI
+              </Typography>
+            </Box>
+
+            <Box sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              marginBottom: '16px'
+            }}>
+              <Button 
+                variant="contained"
+                onClick={() => setShowMapRoute((state) => !state)}
+              >Toggle map route
+              </Button>
+            </Box>
+            {(isLoaded && showMapRoute) &&
+              <GoogleMap
+                mapContainerStyle={mapOptions.containerStyle}
+                center={mapOptions.center}
+                zoom={3}
+                onLoad={onLoad}
+                onUnmount={onUnmount}
+                >
+                  <DirectionsService
+                    options={{ 
+                      destination: airportTwoInfo.name,
+                      origin: airportOneInfo.name,
+                      travelMode: 'BICYCLING'
+                    }}
+                    callback={directionsCallback}
+                  />
+
+                  <DirectionsRenderer
+                    options={{
+                      directions: directionsResponse
+                    }}
+                  />
+                  {/* <Marker 
+                    position={getAirportPositionInMap(airportOneInfo.location)}
+                  />
+                  <Marker 
+                    position={getAirportPositionInMap(airportTwoInfo.location)}
+                  /> */}
+
+              </GoogleMap>
+            }
+          </>
         }
       </Container>
     </ThemeProvider>

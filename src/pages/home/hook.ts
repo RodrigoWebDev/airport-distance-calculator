@@ -1,6 +1,8 @@
-import { useState, useEffect, SetStateAction, Dispatch } from "react"
+import { useState, useEffect, SetStateAction, Dispatch, useCallback } from "react"
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { AirportListInterface } from "../../interfaces"
+import { useJsApiLoader } from '@react-google-maps/api';
+import { AirportListInterface, Location } from "../../interfaces"
+
 
 const useHome = () => {
   const isDesktop = useMediaQuery('(min-width:663px)');
@@ -9,6 +11,23 @@ const useHome = () => {
   const [airportOneInfo, setAirportOneInfo] = useState<AirportListInterface | null>(null)
   const [airportTwoInfo, setAirportTwoInfo] = useState<AirportListInterface | null>(null)
   const [distanceInNmi, setDistanceInNmi] = useState<number | null>(null)
+  const [map, setMap] = useState(null)
+  const [showMapRoute, setShowMapRoute] = useState(false)
+  const [directionsResponse, setDirectionsResponse] = useState()
+
+  const mainTitleVariant = () => isDesktop ? 'h1' : 'h3'
+  const mapOptions = {
+    containerStyle: {
+      width: '100%',
+      height: '400px',
+      margin: '0 auto',
+      marginBottom: '24px'
+    },
+    center: {
+      lat: airportOneInfo?.location.lat || 37.772,
+      lng: airportOneInfo?.location.lon || -122.214
+    }
+  }
 
   const hasTerm = (term: string) => {
     return term && term.length >= 3
@@ -77,11 +96,43 @@ const useHome = () => {
     }
   }
 
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: "AIzaSyAroVYQsjCocZryzS13ra5yndO77lAABh0"
+  })
+
+  const onLoad = useCallback(function callback(map) {
+    const bounds = new window.google.maps.LatLngBounds(mapOptions.center);
+    map.fitBounds(bounds);
+    setMap(map)
+  }, [])
+
+  const onUnmount = useCallback(function callback() {
+    setMap(null)
+  }, [])
+
+  const getAirportPositionInMap = ({lat, lon}: Location) => ({
+    lat,
+    lng: lon
+  })
+
+  const directionsCallback = (response) => {
+    console.log(response)
+
+    if(!directionsResponse){
+      if (response !== null) {
+        if (response.status === 'OK') {
+          setDirectionsResponse(response)
+        } else {
+          console.log('response: ', response)
+        }
+      }
+    }
+  }
+
   useEffect(() => {
     updateNmiDistanceInfo()
   }, [airportOneInfo, airportTwoInfo])
-
-  const mainTitleVariant = () => isDesktop ? 'h1' : 'h2'
 
   return {
     mainTitleVariant,
@@ -94,7 +145,16 @@ const useHome = () => {
     setAirportTwoInfo,
     airportOneInfo,
     airportTwoInfo,
-    distanceInNmi
+    distanceInNmi,
+    mapOptions,
+    onLoad, 
+    onUnmount,
+    isLoaded,
+    getAirportPositionInMap,
+    showMapRoute, 
+    setShowMapRoute,
+    directionsCallback,
+    directionsResponse
   }
 }
 
