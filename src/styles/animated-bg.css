@@ -7,12 +7,12 @@
   background-size: 300% 300%;
   background-image: linear-gradient(
     -45deg, 
-    #2E0249 0%, 
-    #570A57 25%, 
-    #A91079 51%, 
-    #F806CC 100%
+    #261C2C 0%, 
+    #3E2C41 25%, 
+    #5C527F 51%, 
+    #6E85B2 100%
   );  
-  animation: AnimateBG 20s ease infinite;
+  animation: AnimateBG 5s ease infinite;
   margin: 0;
 }
 
