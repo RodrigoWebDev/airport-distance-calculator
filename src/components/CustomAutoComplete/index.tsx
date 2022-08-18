@@ -4,7 +4,7 @@ import TextField from '@mui/material/TextField';
 import { AutoCompleteOptionsInterface } from "../../interfaces"
 
 const CustomAutoComplete = ({ 
-  options, 
+  options = [], 
   onInputChange, 
   onChange, 
   label,

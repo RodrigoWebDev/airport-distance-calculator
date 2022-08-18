@@ -12,7 +12,8 @@ const useHome = () => {
   const [distanceInNmi, setDistanceInNmi] = useState<number | null>(null)
   const [map, setMap] = useState(null)
   const [showMapRoute, setShowMapRoute] = useState(false)
-  const [directionsResponse, setDirectionsResponse] = useState()
+  const [directionsResponse, setDirectionsResponse] = useState(null)
+  const [mapError, setMapError] = useState(null)
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: "AIzaSyAroVYQsjCocZryzS13ra5yndO77lAABh0"
@@ -114,6 +115,11 @@ const useHome = () => {
       if (response !== null) {
         if (response.status === 'OK') {
           setDirectionsResponse(response)
+          setMapError(null)
+        }else{
+          console.log("status", response.status)
+          setDirectionsResponse(null)
+          setMapError(response.status)
         }
       }
     }
@@ -142,7 +148,9 @@ const useHome = () => {
     showMapRoute, 
     setShowMapRoute,
     directionsCallback,
-    directionsResponse
+    directionsResponse,
+    setDirectionsResponse,
+    mapError
   }
 }
 

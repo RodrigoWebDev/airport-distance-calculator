@@ -9,6 +9,7 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
+import Alert from '@mui/material/Alert';
 import CustomAutoComplete from "../../components/CustomAutoComplete";
 
 //Hooks
@@ -40,7 +41,9 @@ const Home = () => {
     showMapRoute, 
     setShowMapRoute,
     directionsCallback,
-    directionsResponse
+    directionsResponse,
+    setDirectionsResponse,
+    mapError
   } = useHome()
 
   return (
@@ -67,7 +70,11 @@ const Home = () => {
           }}>
             <CustomAutoComplete
               options={airportListOne}
-              onInputChange={(e, term) => getAirportOne(term)}
+              onInputChange={(e, term) => { 
+                getAirportOne(term) 
+                setDirectionsResponse(null)
+                setShowMapRoute(false)
+              }}
               onChange={(e, newValue) => {
                 setAirportOneInfo(newValue)
               }}
@@ -77,7 +84,11 @@ const Home = () => {
 
           <CustomAutoComplete
             options={airportListTwo}
-            onInputChange={(e, term) => getAirportTwo(term)}
+            onInputChange={(e, term) => {
+              setShowMapRoute(false)
+              setDirectionsResponse(null)
+              getAirportTwo(term)
+            }}
             onChange={(e, newValue) => {
               setAirportTwoInfo(newValue)
             }}
@@ -119,7 +130,12 @@ const Home = () => {
                 Toggle map route
               </Button>
             </Box>
+
             {(isLoaded && showMapRoute) &&
+              <>
+              {mapError && 
+                <Alert severity="error">Error: {mapError}. Try another airports</Alert>
+              }
               <GoogleMap
                 mapContainerStyle={mapOptions.containerStyle}
                 center={mapOptions.center}
@@ -139,10 +155,11 @@ const Home = () => {
 
                 <DirectionsRenderer
                   options={{
-                    directions: directionsResponse
+                    directions: directionsResponse || null
                   }}
                 />
               </GoogleMap>
+              </>
             }
           </>
         }
