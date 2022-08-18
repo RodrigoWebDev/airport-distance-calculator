@@ -1,7 +1,21 @@
 import { useState, useEffect, SetStateAction, Dispatch, useCallback } from "react"
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useJsApiLoader } from '@react-google-maps/api';
-import { AirportListInterface } from "../../interfaces"
+import { AirportListInterface, Location } from "../../interfaces"
+
+const polyLineOptions = {
+  strokeColor: '#FF0000',
+  strokeOpacity: 0.8,
+  strokeWeight: 2,
+  fillColor: '#FF0000',
+  fillOpacity: 0.35,
+  clickable: false,
+  draggable: false,
+  editable: false,
+  visible: true,
+  radius: 30000,
+  zIndex: 1
+};
 
 const useHome = () => {
   const isDesktop = useMediaQuery('(min-width:663px)');
@@ -12,8 +26,8 @@ const useHome = () => {
   const [distanceInNmi, setDistanceInNmi] = useState<number | null>(null)
   const [map, setMap] = useState(null)
   const [showMapRoute, setShowMapRoute] = useState(false)
-  const [directionsResponse, setDirectionsResponse] = useState(null)
-  const [mapError, setMapError] = useState(null)
+  const [mapZoom, setMapZoom] = useState<number | undefined>(undefined)
+
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: "AIzaSyAroVYQsjCocZryzS13ra5yndO77lAABh0"
@@ -28,9 +42,9 @@ const useHome = () => {
       marginBottom: '24px'
     },
     center: {
-      lat: airportOneInfo?.location.lat || 37.772,
-      lng: airportOneInfo?.location.lon || -122.214
-    }
+      lat: airportOneInfo?.location.lat || 0,
+      lng: airportOneInfo?.location.lon || 0
+    }  
   }
 
   const hasTerm = (term: string) => {
@@ -110,19 +124,27 @@ const useHome = () => {
     setMap(null)
   }, [])
 
-  const directionsCallback = (response) => {
-    if(!directionsResponse){
-      if (response !== null) {
-        if (response.status === 'OK') {
-          setDirectionsResponse(response)
-          setMapError(null)
-        }else{
-          setDirectionsResponse(null)
-          setMapError(response.status)
-        }
-      }
-    }
-  }
+  const getPosition = ({ lat, lon }: Location) => ({
+    lat,
+    lng: lon
+  })
+
+  const airPortOnePosition = () => 
+    getPosition({
+      lat: airportOneInfo?.location.lat || 0,
+      lon: airportOneInfo?.location.lon || 0
+    })
+
+  const airPortTwoPosition = () => 
+    getPosition({
+      lat: airportTwoInfo?.location.lat || 0,
+      lon: airportTwoInfo?.location.lon || 0
+    })
+
+  const polyLinePath = [
+    airPortOnePosition(),
+    airPortTwoPosition()
+  ];
 
   useEffect(() => {
     updateNmiDistanceInfo()
@@ -146,10 +168,12 @@ const useHome = () => {
     isLoaded,
     showMapRoute, 
     setShowMapRoute,
-    directionsCallback,
-    directionsResponse,
-    setDirectionsResponse,
-    mapError
+    mapZoom, 
+    setMapZoom,
+    polyLineOptions,
+    polyLinePath,
+    airPortOnePosition,
+    airPortTwoPosition
   }
 }
 

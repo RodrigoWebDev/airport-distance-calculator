@@ -2,14 +2,13 @@
 import React from "react"
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CountUp from 'react-countup';
-import { GoogleMap, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
+import { GoogleMap, Polyline, Marker } from '@react-google-maps/api';
 
 //Components
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
-import Alert from '@mui/material/Alert';
 import CustomAutoComplete from "../../components/CustomAutoComplete";
 
 //Hooks
@@ -40,10 +39,12 @@ const Home = () => {
     isLoaded,
     showMapRoute, 
     setShowMapRoute,
-    directionsCallback,
-    directionsResponse,
-    setDirectionsResponse,
-    mapError
+    mapZoom, 
+    setMapZoom,
+    polyLinePath,
+    polyLineOptions,
+    airPortOnePosition,
+    airPortTwoPosition
   } = useHome()
 
   return (
@@ -72,7 +73,6 @@ const Home = () => {
               options={airportListOne}
               onInputChange={(e, term) => { 
                 getAirportOne(term) 
-                setDirectionsResponse(null)
                 setShowMapRoute(false)
               }}
               onChange={(e, newValue) => {
@@ -86,7 +86,6 @@ const Home = () => {
             options={airportListTwo}
             onInputChange={(e, term) => {
               setShowMapRoute(false)
-              setDirectionsResponse(null)
               getAirportTwo(term)
             }}
             onChange={(e, newValue) => {
@@ -125,42 +124,39 @@ const Home = () => {
             }}>
               <Button 
                 variant="contained"
-                onClick={() => setShowMapRoute((state) => !state)}
+                onClick={() => {
+                  setShowMapRoute((state) => !state)
+                  setMapZoom(5)
+                }}
               >
                 Toggle map route
               </Button>
             </Box>
-
-            {(isLoaded && showMapRoute) &&
-              <>
-              {mapError && 
-                <Alert severity="error">Error: {mapError}. Try another airports</Alert>
-              }
+            
+            <Box
+              sx={{
+                display: (isLoaded && showMapRoute) ? "block" : "none"
+              }}
+            >
               <GoogleMap
                 mapContainerStyle={mapOptions.containerStyle}
                 center={mapOptions.center}
-                zoom={3}
                 onLoad={onLoadMap}
                 onUnmount={onUnmountMap}
+                zoom={mapZoom}
               >
-                <DirectionsService
-                  options={{ 
-                    destination: airportTwoInfo.name,
-                    origin: airportOneInfo.name,
-                    //@ts-ignore
-                    travelMode: 'DRIVING'
-                  }}
-                  callback={directionsCallback}
+                <Polyline
+                  path={polyLinePath}
+                  options={polyLineOptions}
                 />
-
-                <DirectionsRenderer
-                  options={{
-                    directions: directionsResponse || null
-                  }}
+                <Marker
+                  position={airPortOnePosition()}
+                />
+                <Marker
+                  position={airPortTwoPosition()}
                 />
               </GoogleMap>
-              </>
-            }
+            </Box>
           </>
         }
       </Container>
