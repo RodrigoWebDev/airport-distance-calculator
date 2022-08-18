@@ -1,5 +1,5 @@
 //Libs
-import React, { useState } from "react"
+import React from "react"
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CountUp from 'react-countup';
 import { GoogleMap, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
@@ -34,10 +34,9 @@ const Home = () => {
     airportTwoInfo,
     distanceInNmi,
     mapOptions,
-    onLoad, 
-    onUnmount,
+    onLoadMap, 
+    onUnmountMap,
     isLoaded,
-    getAirportPositionInMap,
     showMapRoute, 
     setShowMapRoute,
     directionsCallback,
@@ -116,7 +115,8 @@ const Home = () => {
               <Button 
                 variant="contained"
                 onClick={() => setShowMapRoute((state) => !state)}
-              >Toggle map route
+              >
+                Toggle map route
               </Button>
             </Box>
             {(isLoaded && showMapRoute) &&
@@ -124,30 +124,24 @@ const Home = () => {
                 mapContainerStyle={mapOptions.containerStyle}
                 center={mapOptions.center}
                 zoom={3}
-                onLoad={onLoad}
-                onUnmount={onUnmount}
-                >
-                  <DirectionsService
-                    options={{ 
-                      destination: airportTwoInfo.name,
-                      origin: airportOneInfo.name,
-                      travelMode: 'BICYCLING'
-                    }}
-                    callback={directionsCallback}
-                  />
+                onLoad={onLoadMap}
+                onUnmount={onUnmountMap}
+              >
+                <DirectionsService
+                  options={{ 
+                    destination: airportTwoInfo.name,
+                    origin: airportOneInfo.name,
+                    //@ts-ignore
+                    travelMode: 'DRIVING'
+                  }}
+                  callback={directionsCallback}
+                />
 
-                  <DirectionsRenderer
-                    options={{
-                      directions: directionsResponse
-                    }}
-                  />
-                  {/* <Marker 
-                    position={getAirportPositionInMap(airportOneInfo.location)}
-                  />
-                  <Marker 
-                    position={getAirportPositionInMap(airportTwoInfo.location)}
-                  /> */}
-
+                <DirectionsRenderer
+                  options={{
+                    directions: directionsResponse
+                  }}
+                />
               </GoogleMap>
             }
           </>

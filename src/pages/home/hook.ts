@@ -1,8 +1,7 @@
 import { useState, useEffect, SetStateAction, Dispatch, useCallback } from "react"
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useJsApiLoader } from '@react-google-maps/api';
-import { AirportListInterface, Location } from "../../interfaces"
-
+import { AirportListInterface } from "../../interfaces"
 
 const useHome = () => {
   const isDesktop = useMediaQuery('(min-width:663px)');
@@ -14,6 +13,10 @@ const useHome = () => {
   const [map, setMap] = useState(null)
   const [showMapRoute, setShowMapRoute] = useState(false)
   const [directionsResponse, setDirectionsResponse] = useState()
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: "AIzaSyAroVYQsjCocZryzS13ra5yndO77lAABh0"
+  })
 
   const mainTitleVariant = () => isDesktop ? 'h1' : 'h3'
   const mapOptions = {
@@ -64,7 +67,7 @@ const useHome = () => {
     return deg * (Math.PI/180)
   }
 
-  const getDistanceFromLatLonInKm = (lat1?: number, lon1?: number, lat2?: number,lon2?: number) => {
+  const getDistanceFromLatLonInKm = (lat1?: number, lon1?: number, lat2?: number, lon2?: number) => {
     if(lat1 && lon1 && lat2 && lon2){
       const R = 6371;
       const dLat = deg2rad(lat2-lat1);
@@ -73,7 +76,7 @@ const useHome = () => {
         Math.sin(dLat/2) * Math.sin(dLat/2) +
         Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
         Math.sin(dLon/2) * Math.sin(dLon/2)
-        ; 
+      ; 
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
       const d = R * c;
       return d;
@@ -96,35 +99,21 @@ const useHome = () => {
     }
   }
 
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: "AIzaSyAroVYQsjCocZryzS13ra5yndO77lAABh0"
-  })
-
-  const onLoad = useCallback(function callback(map) {
+  const onLoadMap = useCallback(function callback(map) {
     const bounds = new window.google.maps.LatLngBounds(mapOptions.center);
     map.fitBounds(bounds);
     setMap(map)
   }, [])
 
-  const onUnmount = useCallback(function callback() {
+  const onUnmountMap = useCallback(function callback() {
     setMap(null)
   }, [])
 
-  const getAirportPositionInMap = ({lat, lon}: Location) => ({
-    lat,
-    lng: lon
-  })
-
   const directionsCallback = (response) => {
-    console.log(response)
-
     if(!directionsResponse){
       if (response !== null) {
         if (response.status === 'OK') {
           setDirectionsResponse(response)
-        } else {
-          console.log('response: ', response)
         }
       }
     }
@@ -147,10 +136,9 @@ const useHome = () => {
     airportTwoInfo,
     distanceInNmi,
     mapOptions,
-    onLoad, 
-    onUnmount,
+    onLoadMap, 
+    onUnmountMap,
     isLoaded,
-    getAirportPositionInMap,
     showMapRoute, 
     setShowMapRoute,
     directionsCallback,
