@@ -69,8 +69,6 @@ const useHome = () => {
             longitude: parseFloat(item.longitude),
           }))
 
-          console.log({ formatedAirports })
-
           setAirport(formatedAirports)
         })
         .catch(err => console.error({err}))
@@ -152,9 +150,6 @@ const useHome = () => {
     airPortOnePosition(),
     airPortTwoPosition()
   ]
-
-  console.log({ polyLinePath })
-  console.log({ airportOneInfo })
 
   useEffect(() => {
     updateNmiDistanceInfo()
