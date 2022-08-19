@@ -42,8 +42,8 @@ const useHome = () => {
       marginBottom: '24px'
     },
     center: {
-      lat: airportOneInfo?.location.lat || 0,
-      lng: airportOneInfo?.location.lon || 0
+      lat: airportOneInfo?.latitude || 0,
+      lng: airportOneInfo?.longitude || 0
     }  
   }
 
@@ -56,15 +56,22 @@ const useHome = () => {
       const options = {
         method: 'GET',
         headers: {
-          'X-RapidAPI-Key': '4a2e9916cbmsh577871ff8d632d4p19c36djsnacd6559fda31',
-          'X-RapidAPI-Host': 'aerodatabox.p.rapidapi.com'
+          'APC-Auth': '2e30707c9f',
         }
       }
       
-      fetch(`https://aerodatabox.p.rapidapi.com/airports/search/term?q=${term}&limit=10`, options)
+      fetch(`https://www.air-port-codes.com/api/v1/multi?term=${term}`, options)
         .then(response => response.json())
-        .then(({items}) => {
-          setAirport(items)
+        .then(({airports}) => {
+          const formatedAirports = airports.map(item => ({
+            ...item,
+            latitude: parseFloat(item.latitude),
+            longitude: parseFloat(item.longitude),
+          }))
+
+          console.log({ formatedAirports })
+
+          setAirport(formatedAirports)
         })
         .catch(err => console.error({err}))
     }
@@ -102,10 +109,10 @@ const useHome = () => {
 
   const updateNmiDistanceInfo = () => {
     if(airportOneInfo && airportTwoInfo){
-      const lat1 = airportOneInfo?.location.lat
-      const lon1 = airportOneInfo?.location.lon
-      const lat2 = airportTwoInfo?.location.lat
-      const lon2 = airportTwoInfo?.location.lon
+      const lat1 = airportOneInfo?.latitude
+      const lon1 = airportOneInfo?.longitude
+      const lat2 = airportTwoInfo?.latitude
+      const lon2 = airportTwoInfo?.longitude
       const nmi = 0.539956803
       const distanceInKm = getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2)
       const distanceInNmi = distanceInKm && (distanceInKm * nmi)
@@ -131,20 +138,23 @@ const useHome = () => {
 
   const airPortOnePosition = () => 
     getPosition({
-      lat: airportOneInfo?.location.lat || 0,
-      lon: airportOneInfo?.location.lon || 0
+      lat: airportOneInfo?.latitude || 0,
+      lon: airportOneInfo?.longitude || 0
     })
 
   const airPortTwoPosition = () => 
     getPosition({
-      lat: airportTwoInfo?.location.lat || 0,
-      lon: airportTwoInfo?.location.lon || 0
+      lat: airportTwoInfo?.latitude || 0,
+      lon: airportTwoInfo?.longitude || 0
     })
 
   const polyLinePath = [
     airPortOnePosition(),
     airPortTwoPosition()
   ]
+
+  console.log({ polyLinePath })
+  console.log({ airportOneInfo })
 
   useEffect(() => {
     updateNmiDistanceInfo()

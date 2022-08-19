@@ -4,13 +4,19 @@ export interface Location {
 }
 
 export interface AirportListInterface {
-  icao: string
-  iata: string
   name: string
-  shortName: string
-  municipalityName: string
-  location: Location
-  countryCode: string
+  city: string
+  iata: string
+  latitude: number
+  longitude: number
+  country: {
+      name: string
+      iso: string
+  }
+  state: {
+      name: string
+      type: string
+  }
 }
 
 export interface AutoCompleteOptionsInterface {
