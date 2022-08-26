@@ -10,12 +10,12 @@ export interface AirportListInterface {
   latitude: number
   longitude: number
   country: {
-      name: string
-      iso: string
+    name: string
+    iso: string
   }
   state: {
-      name: string
-      type: string
+    name: string
+    type: string
   }
 }
 
